@@ -1,92 +1,333 @@
+# Loan Request Management Application
 
-# Application for processing bank loans
+## Overview
 
-The task involves creating a web application for managing various types of bank loans. <br/>
-This will involve building a RESTful service using the Java programming language and the SpringBoot framework. <br/>
-It will also require connecting to a relational database and modeling the database itself. SQLite database must be used. <br/>
-Development of the UI(Frontend) is not part of the task.
+The Loan Request Management Application is designed to streamline the process of handling loan requests within a banking environment. The application allows bank employees to create, manage, and update loan requests and their associated processing steps and loan types. It also supports searching loan requests based on their status.
 
-### Managing loan types (required)
+## Features
 
-A bank employee should have the ability to create different loan types, where each type must have a unique name. Number of different loan types that can be created is not limited or defined in advance.    
-Examples of loan types:
-- Cash loan
-- Real estate loan
-- Real estate loan for young people
-- Business investment loan
-- Loan for solar panels
-- etc
+- Create new loan requests with specified loan types, customer information, and loan amounts.
+- Manage the status of loan requests and their individual processing steps.
+- Automatically update loan request status based on the statuses of the associated steps.
+- Search for loan requests based on their status.
+- Create, update, and delete loan types and processing steps.
 
-When creating a loan type, the bank employee should also define the procedure for processing that loan type.
-The procedure consists of a list of arbitrarily defined steps, where each step must have a name, order number, and expected duration in days.
-A single step can only be associated with one loan type.
+## Technologies Used
 
-> The procedure can differ significantly for different loan types, primarily based on the risk involved, or the amount borrowed from the bank. So, for example, a cash loan may consist of only one or two steps such as 'Collection of required documents' and 'Salary verification', while real estate loans will probably require several additional steps that may be related to validation of the client's creditworthiness, or real estate insurance.
+- Spring Boot
+- JPA/Hibernate
+- SQLite
+- Lombok
+- RESTful APIs
 
-In addition to creating different loan types, the bank employee should have the ability to search for loan types by name, as well as display individual loan type details, which include the total expected duration of all steps, as well as a list of defined steps for processing that loan type.
+## Installation
 
-**Optional**: implement functionalities for updating and deleting loan types.
-> Users(bank employees) creation and maintenance are not part of the requirements.
+### Prerequisites
 
-> You can optionally define additional information for loan types and loan processing steps.
+- Java 17 or higher
+- Maven
+- SQLite database
 
-### Issuing loans (optional)
+### Steps
 
-After the client submits a request for a loan, the bank employee creates a request for loan processing by filling in information about the loan request (loan type, first name, last name, loan amount, ...).    
-The loan request also contains status, which is changed automatically based on the status of its steps, according to the following rules:
-- When a loan request is created, it is initially in the `processing` status, and all its steps are marked as `pending`. Predefined steps are taken from loan type that a request is submitted for, and their expected duration and order cannot be changed.
-- It remains in the `processing` status as long as there are uncompleted steps, or until any step changes to the `failed` status.
-- The loan request status is changed to `approved` only if all steps are moved to the `successful` status.
-  - automatically when the last step changes to `successful` status
-- The loan request status is changed to `rejected` as soon as any step changes to the `failed` status.
-  - automatically when any step goes into `failed` status
+1. **Clone the repository:**
+   ```sh
+   git clone https://github.com/nevena-nedeljkovic-fioneer/lift-2024-07-15-blatincic.git ```
+   
+2. **Navigate to the project directory:**
+	```cd loan-request-management```  
 
-When changing the status of a step, it is necessary to provide the duration of that step expressed in the number of days, as well as the new status.
-The status of a step can be changed from `pending` to `successful` or `failed` only if all previous steps (steps with a lower order number) have been successfully implemented.
-Once a step is completed(`successful` or `failed`), it cannot be changed afterwards.
+3. **Build the project**	
+	```mvn clean install```
+	
+4. **Run the application**
+	```mvn spring-boot:run```
+	
+5. **Access the application**
+	Open your browser and navigate to http://localhost:8080.
 
-> Loan request statuses: [`processing`, `approved`, `rejected`] <br/>
-> Loan request step statuses: [`pending`, `successful`, `failed`]
+## API Documentation
 
-Bank employees should be able to search information about loan requests. This includes information about the status of the request, the total expected and spent time for the request, as well as information about the statuses of all steps, and expected and spent times for each of them.
+### Loan Type Endpoints
 
-> The loan type cannot be updated or deleted if there is any loan request for it, regardless of the request status
+#### Get Loan Types
 
-**Optional**: implement functionalities for searching loan requests by a certain status.
+#### Endpoint:
 
-## Setup
-- Java 17 or newer is required
-- Maven Wrapper (`mvnw`) is part of the application, so you don't need to install Maven
-- Run application: `./mvnw clean spring-boot:run`
-- By default application will run on port 8080
-- OpenAPI(Swagger) is included in project by default
-  - OpenAPI UI default path: `http://localhost:8080/swagger-ui/index.html`
+``` GET /api/v1/loan-type ```
 
-## Evaluation criteria
-#### Compilation/Execution
-- Can you compile it?
-- Can you run it?
-#### Code Structure
-- **Separation of Concerns**: Is the code organized into distinct sections or modules?
-- **Modularity**: Are functions and classes appropriately modularized?
-- **Clean Structure**: Is the overall structure logical and easy to navigate?
-#### Code Quality
-- **Clean Code**: Is the code easy to read and understand?
-- **Naming Conventions**: Are variables, functions, and classes named appropriately?
-- **DRY Principle**: Does the code avoid unnecessary repetition?
-- **SOLID Principles**: Does the code adhere to SOLID principles?
-#### Design Patterns
-- **Use of Patterns**: Are common design patterns used appropriately?
-- **Consistency**: Is there consistency in the application of design patterns throughout the project?
-#### Functionalities
-- **Expected Behavior**: Does the application perform its intended functions?
-- **Accuracy**: Are functionalities accurate and reliable?
-#### Documentation
-- **Presence of documentation**: Is there adequate documentation explaining the project?
-- **Readability**: Is the documentation clear and easy to understand?
-- **Comments**: Are there comments within the code explaining complex sections?
-- **Logs**: Are there logging mechanisms in place?
+#### Query Parameters:
 
-## Info
-If you have any questions feel free to contact us by sending an email to `nevena.brajovic@fioneer.com` and `vidoje.zeljic@fioneer.com`. <br/>
-_Send questions to both Nevena and Vidoje to get a quicker response._
+- `name` (optional)
+
+#### Response:
+
+```
+[
+    {
+        "id": "loan-type-uuid",
+        "name": "Cash loan",
+        "totalDuration": 15
+    }
+]
+```
+
+#### Create Loan Type
+
+#### Endpoint:
+
+```POST /api/v1/loan-type```
+
+#### Request Body:
+
+```
+{
+    "name": "Cash loan",
+    "processingSteps": [
+        {
+            "name": "Step 1",
+            "orderNo": 1,
+            "expectedDuration": 7
+        },
+        {
+            "name": "Step 2",
+            "orderNo": 2,
+            "expectedDuration": 14
+        }
+    ]
+}
+```
+
+#### Response:
+
+```
+{
+    "id": "loan-type-uuid",
+    "name": "Personal Loan",
+    "totalDuration": 21
+}
+```
+
+#### Update Loan Type
+
+#### Endpoint:
+
+```PUT /api/v1/loan-type/{id} ```
+
+#### Request Body:
+
+```
+{
+    "name": "Updated Personal Loan",
+    "processingSteps": [
+        {
+            "name": "Updated Step 1",
+            "orderNo": 1,
+            "expectedDuration": 7
+        },
+        {
+            "name": "Updated Step 2",
+            "orderNo": 2,
+            "expectedDuration": 14
+        }
+    ]
+}
+```
+
+#### Response:
+```
+{
+    "id": "loan-type-uuid",
+    "name": "Updated Personal Loan",
+    "totalDuration": 21
+}
+```
+
+#### Delete Loan Type
+
+####Endpoint:
+
+``` DELETE /api/v1/loan-type/{id} ```
+ 
+#### Response:
+
+``` 200 OK ```
+
+### Processing Step Endpoints
+
+#### Create Processing Step
+
+#### Endpoint:
+
+```POST /api/v1/processing-steps ```
+
+#### Request Body:
+
+```
+{
+    "name": "Step 1",
+    "orderNo": 1,
+    "expectedDuration": 7,
+    "loanTypeId": "loan-type-uuid"
+}
+```
+
+#### Response:
+
+```
+{
+    "id": "step-uuid",
+    "name": "Step 1",
+    "orderNo": 1,
+    "expectedDuration": 7,
+    "loanTypeId": "loan-type-uuid"
+}
+```
+
+
+### Loan Request Endpoints
+
+#### Create a Loan Request
+
+#### Endpoint:
+
+```POST /loan-requests```
+
+#### Request Body:
+
+```
+	{
+		"firstName": "John",
+		"lastName": "Doe",
+		"loanAmount": 5000.0,
+		"loanTypeId": "loan-type-uuid"
+	}
+```
+
+#### Response: 
+
+```
+	{
+		"id": "loan-request-uuid",
+		"firstName": "John",
+		"lastName": "Doe",
+		"loanAmount": 5000.0,
+		"requestStatus": "PROCESSING",
+		"requestSteps": [
+			{
+				"id": "step-uuid",
+				"expectedDurationDays": 7,
+				"actualDurationDays": null,
+				"status": "PENDING"
+			}
+		],
+		"loanTypeId": "loan-type-uuid"
+	}
+```
+
+#### Update Loan Request Status
+
+#### Endpoint:
+
+``` PUT /loan-requests/{loanRequestId}/status ```
+
+#### Request Body:
+
+``` 
+{
+    "newStatus": "APPROVED"
+}
+```
+
+#### Response:
+
+``` 200 OK ```
+
+#### Update Request Step Status
+
+#### Endpoint:
+
+``` PUT /loan-requests/{loanRequestId}/steps/{stepId}/status ```
+
+#### Request Body:
+
+```
+{
+    "newStatus": "SUCCESSFUL",
+    "actualDurationDays": 5
+}
+```
+
+#### Response:
+
+``` 200 OK ```
+
+#### Search Loan Requests by Status
+
+#### Endpoint:
+
+``` GET /loan-requests ```
+
+#### Query Parameters:
+- `status` (e.g., `PROCESSING`, `APPROVED`, `REJECTED`)
+
+#### Response:
+
+```
+[
+    {
+        "id": "loan-request-uuid",
+        "firstName": "John",
+        "lastName": "Doe",
+        "loanAmount": 5000.0,
+        "requestStatus": "PROCESSING",
+        "requestSteps": [
+            {
+                "id": "step-uuid",
+                "expectedDurationDays": 7,
+                "actualDurationDays": 5,
+                "status": "SUCCESSFUL"
+            }
+        ],
+        "loanTypeId": "loan-type-uuid"
+    }
+]
+```
+
+## Usage
+
+### Managing Loan Types and Processing Steps
+1. Use the /api/v1/loan-type endpoints to create, update, and delete loan types.
+2. Use the /api/v1/processing-steps endpoint to create processing steps associated with loan types.
+
+### Creating a Loan Request
+
+1. Send a POST request to /loan-requests with the necessary loan request details in the body.
+2. The response will contain the newly created loan request with its initial status and associated steps.
+
+### Updating Loan Request and Step Status
+1. To update the status of a loan request, send a PUT request to /loan-requests/{loanRequestId}/status with the new status in the body.
+2. To update the status of a specific step, send a PUT request to /loan-requests/{loanRequestId}/steps/{stepId}/status with the new step status and actual duration in the body.
+
+### Searching Loan Requests
+1. Send a GET request to /loan-requests with the desired status as a query parameter.
+2. The response will contain a list of loan requests matching the specified status.
+
+
+## Troubleshooting
+
+### Common Issues
+- Database Connection Issues: Ensure SQLite database is properly configured and accessible.
+- Dependency Issues: Run mvn clean install to ensure all dependencies are correctly resolved.
+
+## Contributing
+
+If you wish to contribute to this project, please fork the repository and submit a pull request.
+
+
+
+
+
+
+
+
