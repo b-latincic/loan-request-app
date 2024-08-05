@@ -32,7 +32,7 @@ The Loan Request Management Application is designed to streamline the process of
 
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/nevena-nedeljkovic-fioneer/lift-2024-07-15-blatincic.git ```
+   git clone https://github.com/b-latincic/loan-request-app.git ```
    
 2. **Navigate to the project directory:**
 	```cd loan-request-management```  
